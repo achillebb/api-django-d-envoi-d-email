@@ -1,0 +1,109 @@
+#root {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;
+  text-align: center;
+}
+
+.logo {
+  height: 6em;
+  padding: 1.5em;
+  will-change: filter;
+  transition: filter 300ms;
+}
+.logo:hover {
+  filter: drop-shadow(0 0 2em #646cffaa);
+}
+.logo.react:hover {
+  filter: drop-shadow(0 0 2em #61dafbaa);
+}
+
+@keyframes logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  a:nth-of-type(2) .logo {
+    animation: logo-spin infinite 20s linear;
+  }
+}
+
+.card {
+  padding: 2em;
+}
+
+.read-the-docs {
+  color: #888;
+}
+/* =========================
+   ✅ GOOGLE TRANSLATE FIX
+   ========================= */
+
+/* 1. Cacher complètement la barre Google */
+.goog-te-banner-frame {
+  display: none !important;
+}
+
+/* 2. ✅ Corriger le décalage du body */
+body {
+  top: 0 !important;
+  position: static !important;
+  min-height: 100vh;
+}
+
+/* 3. ✅ Préserver les polices et styles */
+.goog-text-highlight {
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+/* 4. Cacher le logo Google et autres éléments */
+.goog-logo-link,
+.goog-te-gadget span:not(.goog-te-combo) {
+  display: none !important;
+}
+
+.goog-te-gadget {
+  color: transparent !important;
+  font-size: 0 !important;
+  line-height: normal !important;
+  height: auto !important;
+}
+
+/* 5. ✅ Style du select Google (si utilisé directement) */
+.goog-te-combo {
+  width: 100%;
+  padding: 8px 12px;
+  background-color: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 6px;
+  color: white;
+  font-size: 14px;
+  cursor: pointer;
+  outline: none;
+  font-family: inherit !important; /* ✅ Préserve la police */
+}
+
+/* 6. ✅ Empêcher Google de modifier vos styles */
+font,
+i[class*="goog"] {
+  all: unset !important;
+}
+
+/* 7. Animation fluide pour les changements de langue */
+* {
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+/* 8. ✅ Responsive */
+@media (max-width: 768px) {
+  .goog-te-combo {
+    font-size: 13px;
+    padding: 6px 10px;
+  }
+}
