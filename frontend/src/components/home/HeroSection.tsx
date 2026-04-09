@@ -81,7 +81,7 @@ export default function HeroSection() {
             Institut de Formations Professionnelles, Linguistique
             <span className="block text-primary">
               &amp; Certification
-               Internationale 
+               Internationales
             </span>
           </h1>
 

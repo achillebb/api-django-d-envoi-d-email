@@ -19,9 +19,10 @@ SECRET_KEY = os.getenv(
     "django-insecure-dev-key-change-me"
 )
 
-DEBUG = True
+DEBUG = os.getenv("DEBUG", "False") == "True"
 
-ALLOWED_HOSTS = ["*"]
+# Pour Render : autoriser le domaine automatiquement
+ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "*").split(",")
 
 # =====================
 # APPLICATIONS
@@ -61,10 +62,8 @@ MIDDLEWARE = [
 # =====================
 # CORS CONFIG
 # =====================
-CORS_ALLOW_ALL_ORIGINS = True  # Pour développement uniquement
+CORS_ALLOW_ALL_ORIGINS = False  # production
 CORS_ALLOW_CREDENTIALS = True
-
-# Configuration CORS plus spécifique pour React
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
@@ -96,7 +95,7 @@ TEMPLATES = [
 ]
 
 # =====================
-# DATABASE
+# DATABASE (SQLite)
 # =====================
 DATABASES = {
     'default': {
@@ -150,21 +149,19 @@ REST_FRAMEWORK = {
 }
 
 # =====================
-# EMAIL CONFIGURATION - CORRIGÉE ✅
+# EMAIL CONFIGURATION
 # =====================
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', 'achillemolo403@gmail.com')  # ✅ Changé pour ton nouvel email
-EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')  # Mot de passe d'application
+EMAIL_HOST = os.getenv('EMAIL_HOST', 'smtp.gmail.com')
+EMAIL_PORT = int(os.getenv('EMAIL_PORT', 587))
+EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS', 'True') == 'True'
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
 DEFAULT_FROM_EMAIL = f'ReaxAcademy <{EMAIL_HOST_USER}>'
-
-# Email qui reçoit les messages du formulaire de contact
-CONTACT_EMAIL = os.getenv('CONTACT_EMAIL', 'achillemolo403@gmail.com')  # ✅ Ajouté
+CONTACT_EMAIL = os.getenv('CONTACT_EMAIL', EMAIL_HOST_USER)
 
 # =====================
-# MESSAGES FLASH (optionnel)
+# MESSAGES FLASH
 # =====================
 from django.contrib.messages import constants as messages
 MESSAGE_TAGS = {
