@@ -1,10 +1,11 @@
 """
-Django settings for reaxAcademi project.
+Django settings for reaxAcademi project - Optimisé pour Render
 """
 
 from pathlib import Path
 import os
 from dotenv import load_dotenv
+import dj_database_url
 
 # ── Charger les variables d'environnement ─────────────────────────
 load_dotenv()
@@ -14,21 +15,17 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # =====================
 # SÉCURITÉ
 # =====================
-SECRET_KEY = os.getenv(
-    "DJANGO_SECRET_KEY",
-    "django-insecure-dev-key-change-me"
-)
+SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", "django-insecure-dev-key-change-me")
 
 DEBUG = os.getenv("DEBUG", "False") == "True"
 
-# Pour Render : autoriser le domaine automatiquement
-ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "*").split(",")
+# Configuration ALLOWED_HOSTS pour Render
+ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", ".onrender.com,localhost,127.0.0.1").split(",")
 
 # =====================
 # APPLICATIONS
 # =====================
 INSTALLED_APPS = [
-    # Django
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -40,17 +37,19 @@ INSTALLED_APPS = [
     'rest_framework',
     'corsheaders',
     'drf_yasg',
+    'whitenoise.runserver_nostatic',
 
     # Local apps
     'forms',
 ]
 
 # =====================
-# MIDDLEWARE
+# MIDDLEWARE (ordre important!)
 # =====================
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',  # Pour les fichiers statiques
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -62,12 +61,15 @@ MIDDLEWARE = [
 # =====================
 # CORS CONFIG
 # =====================
-CORS_ALLOW_ALL_ORIGINS = False  # production
+CORS_ALLOW_ALL_ORIGINS = False
 CORS_ALLOW_CREDENTIALS = True
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",
-    "http://127.0.0.1:3000",
-]
+
+# Configuration CORS depuis variable d'environnement
+CORS_ALLOWED_ORIGINS = os.getenv("CORS_ALLOWED_ORIGINS", "http://localhost:3000,http://127.0.0.1:3000").split(",")
+
+# En développement, autoriser toutes les origines
+if DEBUG:
+    CORS_ALLOW_ALL_ORIGINS = True
 
 # =====================
 # URLS / WSGI
@@ -95,14 +97,22 @@ TEMPLATES = [
 ]
 
 # =====================
-# DATABASE (SQLite)
+# DATABASE (PostgreSQL ou SQLite)
 # =====================
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+DATABASE_URL = os.getenv("DATABASE_URL")
+if DATABASE_URL:
+    # Utiliser PostgreSQL sur Render
+    DATABASES = {
+        'default': dj_database_url.config(default=DATABASE_URL, conn_max_age=600)
     }
-}
+else:
+    # Fallback sur SQLite en développement
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
 
 # =====================
 # AUTH PASSWORD
@@ -124,11 +134,14 @@ USE_TZ = True
 LOCALE_PATHS = [BASE_DIR / 'locale']
 
 # =====================
-# STATIC / MEDIA
+# STATIC / MEDIA (optimisé pour Render)
 # =====================
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_DIRS = [BASE_DIR / 'static'] if (BASE_DIR / 'static').exists() else []
+
+# Configuration WhiteNoise
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
@@ -157,7 +170,7 @@ EMAIL_PORT = int(os.getenv('EMAIL_PORT', 587))
 EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS', 'True') == 'True'
 EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
-DEFAULT_FROM_EMAIL = f'ReaxAcademy <{EMAIL_HOST_USER}>'
+DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', f'ReaxAcademy <{EMAIL_HOST_USER}>')
 CONTACT_EMAIL = os.getenv('CONTACT_EMAIL', EMAIL_HOST_USER)
 
 # =====================
@@ -170,6 +183,19 @@ MESSAGE_TAGS = {
     messages.INFO: 'info',
     messages.WARNING: 'warning',
 }
+
+# =====================
+# SÉCURITÉ POUR PRODUCTION (Render)
+# =====================
+if not DEBUG:
+    SECURE_SSL_REDIRECT = True
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SECURE_BROWSER_XSS_FILTER = True
+    SECURE_CONTENT_TYPE_NOSNIFF = True
+    SECURE_HSTS_SECONDS = 31536000  # 1 an
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True
 
 # =====================
 # DEFAULT PRIMARY KEY
