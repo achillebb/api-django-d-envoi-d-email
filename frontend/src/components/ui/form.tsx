@@ -2,6 +2,7 @@ import * as React from "react";
 import * as LabelPrimitive from "@radix-ui/react-label";
 import { Slot } from "@radix-ui/react-slot";
 import { Controller, ControllerProps, FieldPath, FieldValues, FormProvider, useFormContext } from "react-hook-form";
+import { AlertCircle, CheckCircle2 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { Label } from "@/components/ui/label";
@@ -65,7 +66,7 @@ const FormItem = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivEl
 
     return (
       <FormItemContext.Provider value={{ id }}>
-        <div ref={ref} className={cn("space-y-2", className)} {...props} />
+        <div ref={ref} className={cn("space-y-3", className)} {...props} />
       </FormItemContext.Provider>
     );
   },
@@ -78,7 +79,18 @@ const FormLabel = React.forwardRef<
 >(({ className, ...props }, ref) => {
   const { error, formItemId } = useFormField();
 
-  return <Label ref={ref} className={cn(error && "text-destructive", className)} htmlFor={formItemId} {...props} />;
+  return (
+    <Label 
+      ref={ref} 
+      className={cn(
+        "font-semibold",
+        error && "text-destructive", 
+        className
+      )} 
+      htmlFor={formItemId} 
+      {...props} 
+    />
+  );
 });
 FormLabel.displayName = "FormLabel";
 
@@ -118,12 +130,27 @@ const FormMessage = React.forwardRef<HTMLParagraphElement, React.HTMLAttributes<
     }
 
     return (
-      <p ref={ref} id={formMessageId} className={cn("text-sm font-medium text-destructive", className)} {...props}>
-        {body}
-      </p>
+      <div className="flex items-start gap-2">
+        <AlertCircle className="w-4 h-4 text-destructive mt-0.5 flex-shrink-0" />
+        <p ref={ref} id={formMessageId} className={cn("text-sm font-medium text-destructive", className)} {...props}>
+          {body}
+        </p>
+      </div>
     );
   },
 );
 FormMessage.displayName = "FormMessage";
 
-export { useFormField, Form, FormItem, FormLabel, FormControl, FormDescription, FormMessage, FormField };
+const FormSuccess = React.forwardRef<HTMLParagraphElement, React.HTMLAttributes<HTMLParagraphElement>>(
+  ({ className, children, ...props }, ref) => (
+    <div className="flex items-start gap-2">
+      <CheckCircle2 className="w-4 h-4 text-green-600 mt-0.5 flex-shrink-0" />
+      <p ref={ref} className={cn("text-sm font-medium text-green-600", className)} {...props}>
+        {children}
+      </p>
+    </div>
+  ),
+);
+FormSuccess.displayName = "FormSuccess";
+
+export { useFormField, Form, FormItem, FormLabel, FormControl, FormDescription, FormMessage, FormSuccess, FormField };
